@@ -7,6 +7,7 @@ set(CMAKE_C_COMPILER clang)
 # Добавить исполняемый файл
 add_executable(lispy 
             src/main.c
+            src/eval.c
             include/mpc/mpc.c
             )
 
