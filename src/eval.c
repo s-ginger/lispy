@@ -39,14 +39,15 @@ void lval_print(lval v) {
 void lval_println(lval v) { lval_print(v); putchar('\n'); }
 
 
-long eval(mpc_ast_t* t) {
+lval eval(mpc_ast_t* t) {
     if (strstr(t->tag, "number")) {
-        return atoi(t->contents);
+        errno = 0;
+        long x = strtol(t->contents, NULL, 10);
+        return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
     }
 
     char* op = t->children[1]->contents;
-
-    long x = eval(t->children[2]);
+    lval x = eval(t->children[2]);
 
     int i = 3;
     
@@ -59,11 +60,21 @@ long eval(mpc_ast_t* t) {
 }
 
 
-long eval_op(long x, char* op, long y) {
-    if (strcmp(op, "+") == 0) { return x + y; }
-    if (strcmp(op, "-") == 0) { return x - y; }
-    if (strcmp(op, "*") == 0) { return x * y; }
-    if (strcmp(op, "/") == 0) { return x / y; }
-    return 0;
+lval eval_op(lval x, char* op, lval y) {
+
+    if (x.type == LVAL_ERR) return x;
+    if (y.type == LVAL_ERR) return y; 
+
+    if (strcmp(op, "+") == 0) { return lval_num(x.num + y.num); }
+    if (strcmp(op, "-") == 0) { return lval_num(x.num - y.num); }
+    if (strcmp(op, "*") == 0) { return lval_num(x.num * y.num); }
+    if (strcmp(op, "/") == 0) { 
+        return y.num == 0
+        ? lval_err(LERR_DIV_ZERO)
+        : lval_num(x.num / y.num);
+    }
+
+
+    return lval_err(LERR_BAD_OP);
 }
 

@@ -51,8 +51,8 @@ int main(int argc, char const *argv[])
         add_history(input);
         mpc_result_t r;
         if (mpc_parse("<stdin>", input, Lispy, &r)) {
-            long result = eval(r.output);
-            printf("%li\n",  result);
+            lval result = eval(r.output);
+            lval_println(result);
             mpc_ast_delete(r.output);
         } else {
             mpc_err_print(r.error);
