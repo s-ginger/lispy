@@ -18,7 +18,7 @@ lval lval_err(int x);
 void lval_println(lval v);
 void lval_print(lval v);
 
-lval eval_op(long x, char* op, long y);
+lval eval_op(lval x, char* op, lval y);
 lval eval(mpc_ast_t* t); 
 
 #endif
