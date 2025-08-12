@@ -32,6 +32,7 @@ int main(int argc, char const *argv[])
 
     mpc_parser_t* Number   = mpc_new("number");
     mpc_parser_t* Operator = mpc_new("operator");
+    mpc_parser_t* Sexpr    = mpc_new("sexpr");
     mpc_parser_t* Expr     = mpc_new("expr");
     mpc_parser_t* Lispy    = mpc_new("lispy");
 
@@ -43,7 +44,7 @@ int main(int argc, char const *argv[])
         expr     : <number> | '(' <operator> <expr>+ ')' ;  \
         lispy    : /^/ <operator> <expr>+ /$/ ;             \
       ",
-    Number, Operator, Expr, Lispy);
+    Number, Operator, Sexpr, Expr, Lispy);
 
     
     while (1) { 
@@ -63,7 +64,7 @@ int main(int argc, char const *argv[])
         free(input);
     }
 
-    mpc_cleanup(4, Number, Operator, Expr, Lispy);
+    mpc_cleanup(4, Number, Operator, Sexpr, Expr, Lispy);
     return 0;
 }
 
