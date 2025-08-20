@@ -41,6 +41,7 @@ int main(int argc, char const *argv[])
       "                                                     \
         number   : /-?[0-9]+/ ;                             \
         operator : '+' | '-' | '*' | '/' ;                  \
+        sexpr  : '(' <expr>* ')' ;                          \
         expr     : <number> | '(' <operator> <expr>+ ')' ;  \
         lispy    : /^/ <operator> <expr>+ /$/ ;             \
       ",
@@ -52,8 +53,9 @@ int main(int argc, char const *argv[])
         add_history(input);
         mpc_result_t r;
         if (mpc_parse("<stdin>", input, Lispy, &r)) {
-            lval result = eval(r.output);
-            lval_println(result);
+            lval* x = lval_eval(lval_read(r.output));
+            lval_println(x);
+            lval_del(x);
             mpc_ast_delete(r.output);
         } else {
             mpc_err_print(r.error);
