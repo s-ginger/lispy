@@ -1,7 +1,8 @@
 #include "mpc.h"
 #include "eval.h"
 #include <stdlib.h>
-
+#include <errno.h>
+#include <string.h>
 
 lval* lval_num(long x) {
     lval* v = malloc(sizeof(lval));
@@ -61,12 +62,12 @@ lval* lval_read_num(mpc_ast_t* t) {
 
 
 lval* lval_read(mpc_ast_t* t) {
-    if (strstr(t->tag, "number")) { lval_read_num(t); }
-    if (strstr(t->tag, "symbol")) { lval_sym(t); }
+    if (strstr(t->tag, "number")) { return lval_read_num(t); }
+    if (strstr(t->tag, "symbol")) { return lval_sym(t->contents); }
 
     lval* x = NULL;
     if (strcmp(t->tag, ">") == 0) { x = lval_sexpr(); }
-    if (strcmp(t->tag, "sexpr")) { x = lval_sexpr(); }
+    if (strcmp(t->tag, "sexpr") == 0) { x = lval_sexpr(); }
 
     for (int i = 0; i < t->children_num; i++) {
         if (strcmp(t->children[i]->contents, "(") == 0) { continue; }
@@ -80,7 +81,7 @@ lval* lval_read(mpc_ast_t* t) {
 
 lval* lval_add(lval* v, lval* x) {
     v->count++;
-    v->cell = realloc(v->cell, sizeof(lval)* v->count);
+    v->cell = realloc(v->cell, sizeof(lval*)* v->count);
     v->cell[v->count - 1] = x;
     return v;
 }
@@ -185,10 +186,10 @@ lval* builtin_op(lval* a, char* op) {
     {
         lval* y = lval_pop(a, 0);
 
-        if (strcmp(op, "+") == 0) x->num += y->num; 
-        if (strcmp(op, "-") == 0) x->num -= y->num; 
-        if (strcmp(op, "*") == 0) x->num *= y->num; 
-        if (strcmp(op, "/")) {
+        if (strcmp(op, "+") == 0) { x->num += y->num; }
+        if (strcmp(op, "-") == 0) { x->num -= y->num; } 
+        if (strcmp(op, "*") == 0) { x->num *= y->num; } 
+        if (strcmp(op, "/") == 0) {
             if (y->num == 0) {
                 lval_del(x); lval_del(y);
                 x = lval_err("Division By Zero!!"); break;
